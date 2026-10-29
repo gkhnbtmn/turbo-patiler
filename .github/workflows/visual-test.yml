@@ -1,0 +1,31 @@
+name: Turbo Patiler 3D Otomatik Test
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Run 3D browser checks
+        run: npm run test:e2e
+      - name: Save screenshots, diagnostics and test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: turbo-patiler-3d-test
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 14
