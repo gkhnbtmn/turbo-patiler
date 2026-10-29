@@ -96,7 +96,7 @@ models.forEach((file,i)=>loader.load('gobkit-human011-pack/'+file,gltf=>{
  const model=gltf.scene,bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
  if(Math.max(size.x,size.y,size.z)<.001)throw Error('Geçersiz model boyutu');
  const g=new THREE.Group();model.position.sub(center);g.add(model);
- g.scale.setScalar(3.25/Math.max(size.x,size.y,size.z));
+ g.scale.setScalar((i===1?2.55:3.25)/Math.max(size.x,size.y,size.z));
  g.position.y=1.7;
  racers[i].root.clear();racers[i].root.add(g);racers[i].modelLoaded=true;
  // The Gobkit GLBs contain real skeletal Idle, Walk and Run clips.
