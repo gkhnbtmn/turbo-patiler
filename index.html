@@ -49,7 +49,7 @@ function sign(label,z){
  mesh.position.set(0,7,z);scene.add(mesh);
  for(const x of [-8,8])ground(.35,8,.35,x,3.5,z,0x445366);
 }
-sign('START',-88);sign('FINISH',13);
+sign('START',-88);/* FINISH overhead sign removed: it obstructed the front-follow camera. The checkered finish line remains on the track. */
 const loader=new GLTFLoader();let loaded=0;
 const models=['NightWitch.glb','TombMummy.glb','VampireCountess.glb','WerewolfCaptain.glb','StitchedBrute.glb','SheetGhost.glb'];
 models.forEach((file,i)=>loader.load('gobkit-human011-pack/'+file,gltf=>{
