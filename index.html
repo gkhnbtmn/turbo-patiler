@@ -49,7 +49,23 @@ function sign(label,z){
  mesh.position.set(0,7,z);scene.add(mesh);
  for(const x of [-8,8])ground(.35,8,.35,x,3.5,z,0x445366);
 }
-sign('START',-88);/* FINISH overhead sign removed: it obstructed the front-follow camera. The checkered finish line remains on the track. */
+sign('START',-88);
+// FINISH is painted directly onto the track, so the follow camera never passes through a sign.
+{
+ const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=256;
+ const ctx=canvas.getContext('2d');
+ ctx.fillStyle='#18283c';ctx.fillRect(0,0,1024,256);
+ ctx.strokeStyle='#fff3cd';ctx.lineWidth=16;ctx.strokeRect(12,12,1000,232);
+ ctx.fillStyle='#ffffff';ctx.font='900 175px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillText('FINISH',512,133);
+ const texture=new THREE.CanvasTexture(canvas);
+ texture.colorSpace=THREE.SRGBColorSpace;
+ const paint=new THREE.Mesh(new THREE.PlaneGeometry(27,6.7),new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide,depthWrite:false}));
+ paint.rotation.x=-Math.PI/2;
+ paint.position.set(0,.19,9);
+ paint.renderOrder=5;
+ scene.add(paint);
+}/* FINISH overhead sign removed: it obstructed the front-follow camera. The checkered finish line remains on the track. */
 const loader=new GLTFLoader();let loaded=0;
 const models=['NightWitch.glb','TombMummy.glb','VampireCountess.glb','WerewolfCaptain.glb','StitchedBrute.glb','SheetGhost.glb'];
 models.forEach((file,i)=>loader.load('gobkit-human011-pack/'+file,gltf=>{
