@@ -168,7 +168,10 @@ function loop(t){
  $('timer').textContent=Math.max(0,Math.ceil(remaining))+' sn';
  // Keep the full pack visible even if one racer gets a very large gift boost.
  const topScore=Math.max(...racers.map(r=>r.score));
- const leadZ=-62+topScore*.7;
+ // The finish line is reached only when the 60-second race ends.
+ // Gifts change relative placement, not the overall race clock.
+ const raceFraction=phase==='ready'?0:Math.min(1,Math.max(0,(60-remaining)/60));
+ const leadZ=-62+73*raceFraction;
  for(const r of racers){
   const realGap=(topScore-r.score)*.7;
   const visibleGap=Math.min(22,realGap);
