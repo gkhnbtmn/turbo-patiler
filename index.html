@@ -129,7 +129,7 @@ $('start').onclick=()=>{phase='race';remaining=60;$('banner').style.display='non
 function addGift(i,v,n,photo){
  const r=racers[i];if(!r||!Number.isFinite(v)||v<=0)return;
  n=String(n||'Misafir').slice(0,40);
- r.boost+=v;r.score=Math.min(100,r.score+v*.16);
+ r.boost+=v;r.score+=v*.16;
  r.support[n]=(r.support[n]||0)+v;
  if(photo && /^https:\/\//i.test(photo))r.supportPhotos[n]=photo;
  const leader=Object.entries(r.support).sort((a,b)=>b[1]-a[1])[0];
@@ -163,7 +163,7 @@ function loop(t){
   d.mesh.material.opacity=Math.max(0,d.life/d.maxLife)*.52;
   if(d.life<=0)d.mesh.visible=false;
  }
- if(phase==='race'){remaining-=dt;for(const r of racers){r.score=Math.min(100,r.score+dt*(1.1+r.boost*.09));r.boost=Math.max(0,r.boost-dt*.4)}
+ if(phase==='race'){remaining-=dt;for(const r of racers){r.score+=dt*(1.1+r.boost*.09);r.boost=Math.max(0,r.boost-dt*.4)}
  if(remaining<=0){phase='done';for(const r of racers)switchAnimation(r,'idle');const winner=[...racers].sort((a,b)=>b.score-a.score)[0];$('banner').style.display='block';$('banner').textContent='🏆 '+winner.name+' KAZANDI!';notice('Yarış bitti. Yeni yarış başlatabilirsin.')}}
  $('timer').textContent=Math.max(0,Math.ceil(remaining))+' sn';
  // Keep the full pack visible even if one racer gets a very large gift boost.
@@ -174,10 +174,10 @@ function loop(t){
  const highest=Math.max(...scores),lowest=Math.min(...scores);
  const spread=Math.max(1,highest-lowest);
  for(const r of racers){
-  // Rank by actual gift score, never flatten the gap for a distant leader.
+  // Scores are uncapped: even thousands of gifts keep leaders distinct.
   // A proportional distance gives even huge gift totals a visible advantage.
   const normalized=(highest-r.score)/spread;
-  const visibleGap=normalized*22;
+  const visibleGap=(highest-r.score)<.0001?0:3+normalized*19;
   r.root.position.z=leadZ-visibleGap;
   r.root.position.y=phase==='race'?Math.abs(Math.sin(t*.011+r.color))*.12:0;
  }
