@@ -62,7 +62,8 @@ sign('START',-88);
  texture.colorSpace=THREE.SRGBColorSpace;
  const paint=new THREE.Mesh(new THREE.PlaneGeometry(27,6.7),new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide,depthWrite:false}));
  paint.rotation.x=-Math.PI/2;
- paint.position.set(0,.19,9);
+ paint.position.set(0,.19,-80);
+ window.__finishGroundText=paint;
  paint.renderOrder=5;
  scene.add(paint);
 }/* FINISH overhead sign removed: it obstructed the front-follow camera. The checkered finish line remains on the track. */
@@ -100,6 +101,8 @@ function loop(t){
  }
  // Smooth front-facing chase camera, framed around all six lanes.
  const targetZ=leadZ+25;
+ // Keep the ground FINISH lettering in front of the camera rather than behind it.
+ if(window.__finishGroundText)window.__finishGroundText.position.z=leadZ-17;
  camera.position.z+=(targetZ-camera.position.z)*Math.min(1,dt*3);
  camera.position.y+=(8-camera.position.y)*Math.min(1,dt*3);
  camera.lookAt(0,1,leadZ-8);
