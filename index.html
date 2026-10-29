@@ -102,7 +102,7 @@ function loop(t){
  // Smooth front-facing chase camera, framed around all six lanes.
  const targetZ=leadZ+25;
  // Keep the ground FINISH lettering in front of the camera rather than behind it.
- if(window.__finishGroundText)window.__finishGroundText.position.z=camera.position.z-13;
+ if(window.__finishGroundText)window.__finishGroundText.position.z=leadZ-8;
  camera.position.z+=(targetZ-camera.position.z)*Math.min(1,dt*3);
  camera.position.y+=(8-camera.position.y)*Math.min(1,dt*3);
  camera.lookAt(0,1,leadZ-8);
