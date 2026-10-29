@@ -73,13 +73,20 @@ function loop(t){
  if(phase==='race'){remaining-=dt;for(const r of racers){r.score=Math.min(100,r.score+dt*(1.1+r.boost*.09));r.boost=Math.max(0,r.boost-dt*.4)}
  if(remaining<=0){phase='done';const winner=[...racers].sort((a,b)=>b.score-a.score)[0];$('banner').style.display='block';$('banner').textContent='🏆 '+winner.name+' KAZANDI!';notice('Yarış bitti. Yeni yarış başlatabilirsin.')}}
  $('timer').textContent=Math.max(0,Math.ceil(remaining))+' sn';
- for(const r of racers){r.root.position.z=-62+r.score*.7;r.root.position.y=phase==='race'?Math.abs(Math.sin(t*.011+r.color))*.12:0}
- // Camera tracks the six racers from the front, moving backwards as they approach.
- const leader=[...racers].sort((a,b)=>b.score-a.score)[0];
- const targetZ=-43+leader.score*.7;
- camera.position.z+= (targetZ-camera.position.z)*Math.min(1,dt*2.5);
- camera.position.y+= (7-camera.position.y)*Math.min(1,dt*2.5);
- camera.lookAt(0,1,camera.position.z-16);
+ // Keep the full pack visible even if one racer gets a very large gift boost.
+ const topScore=Math.max(...racers.map(r=>r.score));
+ const leadZ=-62+topScore*.7;
+ for(const r of racers){
+  const realGap=(topScore-r.score)*.7;
+  const visibleGap=Math.min(22,realGap);
+  r.root.position.z=leadZ-visibleGap;
+  r.root.position.y=phase==='race'?Math.abs(Math.sin(t*.011+r.color))*.12:0;
+ }
+ // Smooth front-facing chase camera, framed around all six lanes.
+ const targetZ=leadZ+25;
+ camera.position.z+=(targetZ-camera.position.z)*Math.min(1,dt*3);
+ camera.position.y+=(8-camera.position.y)*Math.min(1,dt*3);
+ camera.lookAt(0,1,leadZ-8);
  renderer.render(scene,camera);
  if(Math.floor(t/500)!==Math.floor((t-dt*1000)/500))$('ranks').innerHTML=[...racers].sort((a,b)=>b.score-a.score).map((r,i)=>'<span class="rank">'+(i+1)+'. '+r.name+' · '+r.score.toFixed(1)+'</span>').join('');
 }
