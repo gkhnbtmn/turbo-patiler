@@ -50,25 +50,17 @@ function sign(label,z){
  for(const x of [-8,8])ground(.35,8,.35,x,3.5,z,0x445366);
 }
 sign('START',-88);
-// Fixed FINISH sign at the actual finish line (z=11), not attached to the camera.
+// FINISH is permanently painted on the track at the real finish line (z=11).
+// Horizontal plane faces upward; no posts or camera-following labels.
 {
  const c=document.createElement('canvas');c.width=1024;c.height=256;
  const ctx=c.getContext('2d');
- ctx.fillStyle='#142d45';ctx.fillRect(0,0,1024,256);
- ctx.strokeStyle='#ffe1a1';ctx.lineWidth=14;ctx.strokeRect(9,9,1006,238);
- ctx.fillStyle='#ffffff';ctx.font='900 154px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🏁 FINISH 🏁',512,132);
+ ctx.fillStyle='#18324a';ctx.fillRect(0,0,1024,256);
+ ctx.strokeStyle='#fff1c5';ctx.lineWidth=12;ctx.strokeRect(7,7,1010,242);
+ ctx.fillStyle='#ffffff';ctx.font='900 166px Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('FINISH',512,132);
  const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
- const mesh=new THREE.Mesh(new THREE.PlaneGeometry(15,3.75),new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide}));
- mesh.position.set(0,8,11);scene.add(mesh);
- for(const x of [-8,8])ground(.35,8,.35,x,3.5,11,0x445366);
-}
-function switchAnimation(r,state){
- if(!r.clips)return;
- const next=r.clips[state]||r.clips.walk||r.clips.idle;
- if(!next||r.animationState===state)return;
- for(const action of Object.values(r.clips))if(action!==next)action.fadeOut(.18);
- next.reset().fadeIn(.18).play();
- r.animationState=state;
+ const paint=new THREE.Mesh(new THREE.PlaneGeometry(28,6.4),new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide,depthWrite:false}));
+ paint.rotation.x=-Math.PI/2;paint.position.set(0,.23,11);paint.renderOrder=4;scene.add(paint);
 }
 const loader=new GLTFLoader();let loaded=0;
 const models=['NightWitch.glb','TombMummy.glb','VampireCountess.glb','WerewolfCaptain.glb','StitchedBrute.glb','SheetGhost.glb'];
