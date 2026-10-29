@@ -167,14 +167,17 @@ function loop(t){
  if(remaining<=0){phase='done';for(const r of racers)switchAnimation(r,'idle');const winner=[...racers].sort((a,b)=>b.score-a.score)[0];$('banner').style.display='block';$('banner').textContent='🏆 '+winner.name+' KAZANDI!';notice('Yarış bitti. Yeni yarış başlatabilirsin.')}}
  $('timer').textContent=Math.max(0,Math.ceil(remaining))+' sn';
  // Keep the full pack visible even if one racer gets a very large gift boost.
- const topScore=Math.max(...racers.map(r=>r.score));
- // The finish line is reached only when the 60-second race ends.
- // Gifts change relative placement, not the overall race clock.
+ // Keep gift leaders ahead while the finish line remains time-gated.
  const raceFraction=phase==='ready'?0:Math.min(1,Math.max(0,(60-remaining)/60));
  const leadZ=-62+73*raceFraction;
+ const scores=racers.map(r=>r.score);
+ const highest=Math.max(...scores),lowest=Math.min(...scores);
+ const spread=Math.max(1,highest-lowest);
  for(const r of racers){
-  const realGap=(topScore-r.score)*.7;
-  const visibleGap=Math.min(22,realGap);
+  // Rank by actual gift score, never flatten the gap for a distant leader.
+  // A proportional distance gives even huge gift totals a visible advantage.
+  const normalized=(highest-r.score)/spread;
+  const visibleGap=normalized*22;
   r.root.position.z=leadZ-visibleGap;
   r.root.position.y=phase==='race'?Math.abs(Math.sin(t*.011+r.color))*.12:0;
  }
