@@ -182,16 +182,29 @@ function loop(t){
  camera.position.z+=(targetZ-camera.position.z)*Math.min(1,dt*3);
  camera.position.y+=(8-camera.position.y)*Math.min(1,dt*3);
  camera.lookAt(0,1,leadZ-8);
- // Project each team's leading supporter above the moving 3D character.
+ // Anchor supporter badges above heads and stagger overlapping badges in screen space.
  camera.updateMatrixWorld();
  const rect=$('stage').getBoundingClientRect(),projected=new THREE.Vector3();
+ const placed=[];
  for(const r of racers){
   if(r.badge.style.display==='none')continue;
-  projected.set(r.laneX,6.2+r.root.position.y,r.root.position.z).project(camera);
+  projected.set(r.laneX,5.4+r.root.position.y,r.root.position.z).project(camera);
   const visible=projected.z>=-1&&projected.z<=1&&Math.abs(projected.x)<1.05&&Math.abs(projected.y)<1.05;
-  r.badge.style.visibility=visible?'visible':'hidden';
-  r.badge.style.left=((projected.x+1)*.5*rect.width)+'px';
-  r.badge.style.top=((1-projected.y)*.5*rect.height)+'px';
+  if(!visible){r.badge.style.visibility='hidden';continue}
+  r.badge.style.visibility='visible';
+  const w=r.badge.offsetWidth||110,h=r.badge.offsetHeight||40;
+  const x=Math.max(w/2+4,Math.min(rect.width-w/2-4,(projected.x+1)*.5*rect.width));
+  const naturalY=(1-projected.y)*.5*rect.height;
+  let y=Math.max(h+8,naturalY);
+  // Avoid collisions with all previously placed nameplates, including adjacent lanes.
+  for(let attempt=0;attempt<12;attempt++){
+   const collision=placed.find(b=>Math.abs(x-b.x)<(w+b.w)/2+10 && Math.abs(y-b.y)<(h+b.h)/2+9);
+   if(!collision)break;
+   y=collision.y-(h+collision.h)/2-11;
+  }
+  y=Math.max(h+5,y);
+  r.badge.style.left=x+'px';r.badge.style.top=y+'px';
+  placed.push({x,y,w,h});
  }
  renderer.render(scene,camera);
  if(Math.floor(t/500)!==Math.floor((t-dt*1000)/500))$('ranks').innerHTML=[...racers].sort((a,b)=>b.score-a.score).map((r,i)=>'<span class="rank">'+(i+1)+'. '+r.name+' · '+r.score.toFixed(1)+'</span>').join('');
