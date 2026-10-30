@@ -87,10 +87,10 @@ function tracksideBoard(){
  // Plane faces across the lanes (+X), not toward the player's camera (+Z).
  const board=new THREE.Mesh(new THREE.PlaneGeometry(12,2.1),new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide}));
  board.rotation.y=Math.PI/2;
- board.position.set(-15.7,1.55,-47);scene.add(board);
+ board.position.set(-15.7,1.55,-54);scene.add(board);
  const backing=new THREE.Mesh(new THREE.BoxGeometry(.22,2.25,12.2),mat(0x34414d));
- backing.position.set(-15.9,1.55,-47);scene.add(backing);
- for(const z of [-52.3,-41.7])ground(.18,1.1,.18,-16,0.52,z,0x46545e);
+ backing.position.set(-15.9,1.55,-54);scene.add(backing);
+ for(const z of [-59.3,-48.7])ground(.18,1.1,.18,-16,0.52,z,0x46545e);
 }
 tracksideBoard();
 // Lightweight dressed low-poly spectators with independent cheering rigs.
