@@ -144,6 +144,42 @@ function addGrandstand(side){
  for(let z=-79;z<0;z+=5)ground(.15,1.8,.15,side*20.4,.8,z,0x7a8995);
 }
 addGrandstand(-1);addGrandstand(1);
+// Halloween decorations on the grassy strip in front of the grandstands.
+const pumpkinBodyGeo=new THREE.SphereGeometry(.58,12,8);
+const pumpkinStemGeo=new THREE.CylinderGeometry(.085,.12,.35,6);
+const hayGeo=new THREE.BoxGeometry(1.8,.85,1.1);
+const pumpkinOrange=mat(0xe97819),pumpkinDark=mat(0x3b2514),pumpkinGreen=mat(0x3d6933);
+const hayMaterial=mat(0xcaa64b),hayBandMaterial=mat(0x79603a);
+function halloweenDecor(x,z,scale=1){
+ const group=new THREE.Group();group.position.set(x,0,z);group.scale.setScalar(scale);scene.add(group);
+ const bale=new THREE.Mesh(hayGeo,hayMaterial);bale.position.set(0,.46,0);group.add(bale);
+ for(const dx of [-.53,.53]){
+  const band=new THREE.Mesh(new THREE.BoxGeometry(.11,.89,1.13),hayBandMaterial);
+  band.position.set(dx,.46,0);group.add(band);
+ }
+ const pumpkin=new THREE.Mesh(pumpkinBodyGeo,pumpkinOrange);
+ pumpkin.scale.set(1,.78,1);pumpkin.position.set(.78,1.18,.12);group.add(pumpkin);
+ const stem=new THREE.Mesh(pumpkinStemGeo,pumpkinGreen);stem.position.set(.78,1.69,.12);group.add(stem);
+ // Glowing jack-o'-lantern face points toward the racetrack.
+ const faceSide=x<0?1:-1;
+ for(const dz of [-.22,.22]){
+  const eye=new THREE.Mesh(new THREE.ConeGeometry(.13,.25,3),pumpkinDark);
+  eye.rotation.z=faceSide>0?-Math.PI/2:Math.PI/2;
+  eye.position.set(.78+faceSide*.53,1.26,.12+dz);group.add(eye);
+ }
+ const mouth=new THREE.Mesh(new THREE.BoxGeometry(.025,.11,.4),pumpkinDark);
+ mouth.position.set(.78+faceSide*.56,.98,.12);group.add(mouth);
+ const little=new THREE.Mesh(pumpkinBodyGeo,pumpkinOrange);
+ little.scale.set(.57,.48,.57);little.position.set(-.75,.34,.62);group.add(little);
+ const littleStem=new THREE.Mesh(pumpkinStemGeo,pumpkinGreen);
+ littleStem.scale.setScalar(.55);littleStem.position.set(-.75,.67,.62);group.add(littleStem);
+}
+for(const side of [-1,1]){
+ for(const z of [-70,-54,-37,-20,-5]){
+  halloweenDecor(side*18.5,z,.85+(Math.abs(z)%3)*.1);
+ }
+}
+
 function sign(label,z){
  const c=document.createElement('canvas');c.width=512;c.height=128;
  const ctx=c.getContext('2d');ctx.fillStyle='#14324d';ctx.fillRect(0,0,512,128);
