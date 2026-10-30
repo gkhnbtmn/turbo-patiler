@@ -299,7 +299,8 @@ models.forEach((file,i)=>loader.load('gobkit-human011-pack/'+file,gltf=>{
  if(Math.max(size.x,size.y,size.z)<.001)throw Error('Geçersiz model boyutu');
  const g=new THREE.Group();model.position.sub(center);g.add(model);
  g.scale.setScalar((i===1?2.55:i===2?3.60:i===3?2.85:3.25)/Math.max(size.x,size.y,size.z));
- g.position.y=1.7;
+ // StitchedBrute (Dev) needs a lower pivot so its feet meet the track.
+ g.position.y=file==='StitchedBrute.glb'?1.25:1.7;
  racers[i].root.clear();racers[i].root.add(g);racers[i].modelLoaded=true;
  // The Gobkit GLBs contain real skeletal Idle, Walk and Run clips.
  const mixer=new THREE.AnimationMixer(model);
