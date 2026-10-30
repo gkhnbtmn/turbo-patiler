@@ -330,7 +330,8 @@ let voiceEnabled=false,voiceLast=0,voiceLastLeader='',voiceFinalFive=false;
 function chooseMaleTurkishVoice(){
  const vs=voiceSynth?.getVoices()||[];
  const turkish=vs.filter(v=>/^tr([-_]|$)/i.test(v.lang));
- return turkish.find(v=>/male|erkek|tolga|cem|murat|yusuf|ahmet/i.test(v.name))||turkish[0]||null;
+ // Never fall back to an unverified voice: it could be female.
+ return turkish.find(v=>/\\b(male|erkek|tolga|cem|murat|yusuf|ahmet|kerem|emre)\\b/i.test(v.name))||null;
 }
 function announce(message,priority=false){
  if(!voiceEnabled||!voiceSynth)return;
@@ -340,13 +341,19 @@ function announce(message,priority=false){
  else if(voiceSynth.speaking||voiceSynth.pending)return;
  const u=new SpeechSynthesisUtterance(message);
  u.lang='tr-TR';u.rate=1.12;u.pitch=.8;u.volume=1;
- const v=chooseMaleTurkishVoice();if(v)u.voice=v;
- voiceSynth.speak(u);voiceLast=now;
+ const v=chooseMaleTurkishVoice();if(!v)return;
+ u.voice=v;voiceSynth.speak(u);voiceLast=now;
 }
 $('voiceEnable').onclick=()=>{
  if(!voiceSynth){$('voiceStatus').textContent='Bu tarayıcı seslendirmeyi desteklemiyor.';return}
+ const maleVoice=chooseMaleTurkishVoice();
+ if(!maleVoice){
+  voiceEnabled=false;voiceSynth.cancel();
+  $('voiceStatus').textContent='⚠️ Türkçe erkek ses bulunamadı. Kadın sesi kullanılmayacak. Mac ses ayarlarından Türkçe Cem sesini yükleyin.';
+  return;
+ }
  voiceEnabled=true;voiceSynth.cancel();
- $('voiceStatus').textContent='Spiker açık'+(chooseMaleTurkishVoice()?' · '+chooseMaleTurkishVoice().name:' · Türkçe ses bulunamadı, sistem sesi kullanılacak');
+ $('voiceStatus').textContent='🎙️ Erkek spiker açık · '+maleVoice.name;
  announce('Turbo Canavarlar arenasına hoş geldiniz! Spiker hazır!',true);
 };
 $('voiceMute').onclick=()=>{voiceEnabled=false;voiceSynth?.cancel();$('voiceStatus').textContent='Spiker kapalı'};
