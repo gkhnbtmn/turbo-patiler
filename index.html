@@ -378,14 +378,48 @@ $('voiceEnable').onclick=()=>{
   $('voiceStatus').textContent='⚠️ Ses seçin. Listede erkek ses yoksa Mac sistem ayarlarından Türkçe erkek sesi yükleyip sayfayı yenileyin.';
   return;
  }
- voiceEnabled=true;voiceSynth.cancel();
+ voiceEnabled=true;voiceSynth.cancel();try{const AC=window.AudioContext||window.webkitAudioContext;if(AC){cheerAudioContext=cheerAudioContext||new AC();cheerAudioContext.resume()}}catch(e){}
  $('voiceStatus').textContent='🎙️ Seçilen spiker sesi açık · '+maleVoice.name;
  announce('Turbo Canavarlar arenasına hoş geldiniz! Spiker hazır!',true);
 };
-$('voiceMute').onclick=()=>{voiceEnabled=false;voiceSynth?.cancel();$('voiceStatus').textContent='Spiker kapalı'};
+$('voiceMute').onclick=()=>{voiceEnabled=false;voiceSynth?.cancel();stopVictoryCheer();$('voiceStatus').textContent='Spiker kapalı'};
+// Synthetic stadium crowd cheering, played only for a unique winner.
+let cheerAudioContext=null,cheerNoiseSource=null,cheerEndTimer=null;
+function stopVictoryCheer(){
+ if(cheerEndTimer){clearTimeout(cheerEndTimer);cheerEndTimer=null}
+ if(cheerNoiseSource){try{cheerNoiseSource.stop()}catch(e){}cheerNoiseSource=null}
+}
+function playVictoryCheer(){
+ if(!voiceEnabled)return;
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return;
+  cheerAudioContext=cheerAudioContext||new AC();
+  if(cheerAudioContext.state==='suspended')cheerAudioContext.resume();
+  stopVictoryCheer();
+  const ctx=cheerAudioContext,duration=5,samples=Math.floor(ctx.sampleRate*duration);
+  const buffer=ctx.createBuffer(1,samples,ctx.sampleRate),data=buffer.getChannelData(0);
+  // Stadium-like roar: slowly modulated filtered crowd noise.
+  for(let i=0;i<samples;i++){
+   const x=i/ctx.sampleRate;
+   const swell=.58+.24*Math.sin(x*9)+.13*Math.sin(x*23);
+   data[i]=(Math.random()*2-1)*swell;
+  }
+  const src=ctx.createBufferSource();src.buffer=buffer;
+  const low=ctx.createBiquadFilter();low.type='bandpass';low.frequency.value=900;low.Q.value=.48;
+  const gain=ctx.createGain();gain.gain.setValueAtTime(.001,ctx.currentTime);
+  gain.gain.linearRampToValueAtTime(.18,ctx.currentTime+.35);
+  gain.gain.setValueAtTime(.18,ctx.currentTime+3.4);
+  gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+5);
+  src.connect(low);low.connect(gain);gain.connect(ctx.destination);
+  src.start();src.stop(ctx.currentTime+5.05);cheerNoiseSource=src;
+  src.onended=()=>{if(cheerNoiseSource===src)cheerNoiseSource=null};
+ }catch(e){console.warn('Cheer audio unavailable',e)}
+}
 let raceCountdownTimer=null;
 $('start').onclick=()=>{
  if(phase==='countdown'||phase==='race')return;
+ stopVictoryCheer();
  if(raceCountdownTimer){clearTimeout(raceCountdownTimer);raceCountdownTimer=null}
  phase='countdown';remaining=10;winnerRacer=null;celebrationStart=0;
  $('banner').style.display='block';$('banner').textContent='🏁 HAZIRLANIN!';
@@ -530,7 +564,7 @@ function loop(t){
    notice('Yarış berabere bitti. En yüksek puanı '+tied.length+' yarışmacı paylaştı.');announce('İnanılmaz! Yarış berabere sonuçlandı!',true);
   }else{
    const winner=ranked[0];
-   winnerRacer=winner;celebrationStart=t;burstConfetti(winner);
+   winnerRacer=winner;celebrationStart=t;burstConfetti(winner);playVictoryCheer();
    if(winner.clips&&winner.clips.victory)switchAnimation(winner,'victory');
    $('banner').textContent='🏆 '+winner.name+' KAZANDI! 🎁 '+winner.giftPoints.toLocaleString('tr-TR')+' PUAN';
    notice('Yarış bitti. Kazanan: '+winner.name+' ('+winner.giftPoints+' hediye puanı)');announce('Ve kazanan '+winner.name+'! Tebrikler!',true);
