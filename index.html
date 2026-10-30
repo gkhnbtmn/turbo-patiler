@@ -29,7 +29,7 @@
  </div>
  <p class="infoNote">Bu isimler ve puanlar oyun içi test seçenekleridir; gerçek TikTok hediye kataloğu ve değerleri değildir.</p>
  <p class="infoNote">🧪 Şu anda 10 saniyelik test yarışı ve manuel test hediyeleri kullanılıyor. TikTok LIVE bağlantısı henüz aktif değil.</p></div>
-</section><div id="ranks" style="display:none"></div><script type="importmap">{"imports":{"three":"https://esm.sh/three@0.160.1","three/addons/":"https://esm.sh/three@0.160.1/examples/jsm/"}}</script><script type="module">import * as THREE from "three";import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";window.THREE=THREE;window.GLTFLoader=GLTFLoader;window.dispatchEvent(new Event("turbo-three-ready"));</script><script>(()=>{const $=id=>document.getElementById(id),names=['Gece Cadısı','Mumya','Vampir','Kurt Adam','Dev','Hayalet'],colors=[0xa763d6,0xe4c69d,0xb63b5c,0x836f5c,0x5aa66b,0xd4e9ee];let racers=[],phase='ready',remaining=10,last=performance.now();function notice(s){$('message').textContent=s}function mat(c){return new THREE.MeshStandardMaterial({color:c,roughness:.78})}function part(group,geo,color,x,y,z){const m=new THREE.Mesh(geo,mat(color));m.position.set(x,y,z);m.castShadow=true;group.add(m);return m}function box(g,c,x,y,z,w,h,d){return part(g,new THREE.BoxGeometry(w,h,d),c,x,y,z)}function ball(g,c,x,y,z,r){return part(g,new THREE.SphereGeometry(r,12,9),c,x,y,z)}function cone(g,c,x,y,z,r,h){return part(g,new THREE.ConeGeometry(r,h,9),c,x,y,z)}function character(i){let g=new THREE.Group();const c=colors[i],skin=[0xe0b4a1,0xe1d5b7,0xeac8b3,0x80624c,0x85ae7a,0xe7f4ff][i];box(g,c,0,1.05,0,.66,.85,.45);ball(g,skin,0,1.78,0,.38);for(let s of [-1,1]){box(g,c,s*.47,1.08,0,.22,.7,.22);box(g,c,s*.18,.43,0,.23,.72,.27);ball(g,0x22222c,s*.13,1.81,.32,.06)}if(i===0){cone(g,0x33204c,0,2.38,0,.61,.8);box(g,0x33204c,0,2.02,0,1.05,.12,.9)}if(i===1){for(let y=.8;y<2.05;y+=.22)box(g,0xf4eee2,0,y,.24,.8,.09,.15)}if(i===2){cone(g,0x2a2037,0,2.18,0,.4,.45);for(let s of [-1,1])cone(g,0xf8f8ed,s*.13,1.55,.35,.06,.18)}if(i===3){for(let s of [-1,1])cone(g,0x715540,s*.24,2.15,0,.17,.43);ball(g,0x5d4939,0,1.57,.33,.26)}if(i===4){box(g,0x536e42,0,1.1,0,.95,1.1,.68);ball(g,0x85ae7a,0,1.86,0,.47)}if(i===5){cone(g,0xe6f4ff,0,1.26,0,.6,1.9);for(let s of [-1,1])ball(g,0x14273a,s*.13,1.78,.34,.075)}return g}function main(){
+</section><div id="ranks" style="display:none"></div><script type="importmap">{"imports":{"three":"https://esm.sh/three@0.160.1","three/addons/":"https://esm.sh/three@0.160.1/examples/jsm/"}}</script><script type="module">import * as THREE from "three";import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";window.THREE=THREE;window.GLTFLoader=GLTFLoader;window.dispatchEvent(new Event("turbo-three-ready"));</script><script>(()=>{const $=id=>document.getElementById(id),names=['Gece Cadısı','Mumya','Vampir','Kurt Adam','Dev','Hayalet'],colors=[0xa763d6,0xe4c69d,0xb63b5c,0x836f5c,0x5aa66b,0xd4e9ee];let racers=[],phase='ready',remaining=10,last=performance.now(),winnerRacer=null,celebrationStart=0;function notice(s){$('message').textContent=s}function mat(c){return new THREE.MeshStandardMaterial({color:c,roughness:.78})}function part(group,geo,color,x,y,z){const m=new THREE.Mesh(geo,mat(color));m.position.set(x,y,z);m.castShadow=true;group.add(m);return m}function box(g,c,x,y,z,w,h,d){return part(g,new THREE.BoxGeometry(w,h,d),c,x,y,z)}function ball(g,c,x,y,z,r){return part(g,new THREE.SphereGeometry(r,12,9),c,x,y,z)}function cone(g,c,x,y,z,r,h){return part(g,new THREE.ConeGeometry(r,h,9),c,x,y,z)}function character(i){let g=new THREE.Group();const c=colors[i],skin=[0xe0b4a1,0xe1d5b7,0xeac8b3,0x80624c,0x85ae7a,0xe7f4ff][i];box(g,c,0,1.05,0,.66,.85,.45);ball(g,skin,0,1.78,0,.38);for(let s of [-1,1]){box(g,c,s*.47,1.08,0,.22,.7,.22);box(g,c,s*.18,.43,0,.23,.72,.27);ball(g,0x22222c,s*.13,1.81,.32,.06)}if(i===0){cone(g,0x33204c,0,2.38,0,.61,.8);box(g,0x33204c,0,2.02,0,1.05,.12,.9)}if(i===1){for(let y=.8;y<2.05;y+=.22)box(g,0xf4eee2,0,y,.24,.8,.09,.15)}if(i===2){cone(g,0x2a2037,0,2.18,0,.4,.45);for(let s of [-1,1])cone(g,0xf8f8ed,s*.13,1.55,.35,.06,.18)}if(i===3){for(let s of [-1,1])cone(g,0x715540,s*.24,2.15,0,.17,.43);ball(g,0x5d4939,0,1.57,.33,.26)}if(i===4){box(g,0x536e42,0,1.1,0,.95,1.1,.68);ball(g,0x85ae7a,0,1.86,0,.47)}if(i===5){cone(g,0xe6f4ff,0,1.26,0,.6,1.9);for(let s of [-1,1])ball(g,0x14273a,s*.13,1.78,.34,.075)}return g}function main(){
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x91c9e6);scene.fog=new THREE.Fog(0x91c9e6,105,190);
 const camera=new THREE.PerspectiveCamera(56,1,.1,350);
 camera.position.set(0,7,-43);camera.lookAt(0,1,-59);
@@ -144,6 +144,7 @@ models.forEach((file,i)=>loader.load('gobkit-human011-pack/'+file,gltf=>{
  if(key.includes('run'))clips.run=action;
  else if(key.includes('walk'))clips.walk=action;
  else if(key.includes('idle'))clips.idle=action;
+ else if(/victory|celebrat|cheer|dance|happy|jump|win/.test(key))clips.victory=action;
 }
  racers[i].mixer=mixer;racers[i].clips=clips;
  racers[i].animationState='';
@@ -156,7 +157,7 @@ models.forEach((file,i)=>loader.load('gobkit-human011-pack/'+file,gltf=>{
 window.__turboDiagnostics={scene,camera,renderer,racers,THREE};
 function resize(){const el=$('stage');renderer.setSize(el.clientWidth,el.clientHeight,false);camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix()}
 window.addEventListener('resize',resize);resize();
-$('start').onclick=()=>{phase='race';remaining=10;$('banner').style.display='none';for(const r of racers){r.score=0;r.giftPoints=0;r.boost=0;r.root.position.z=-62;switchAnimation(r,'run')}updateRanks();notice('🏁 Yarış başladı!')};
+$('start').onclick=()=>{phase='race';remaining=10;winnerRacer=null;celebrationStart=0;$('banner').style.display='none';for(const r of racers){r.score=0;r.giftPoints=0;r.boost=0;r.root.position.z=-62;r.root.rotation.y=0;switchAnimation(r,'run')}updateRanks();notice('🏁 Yarış başladı!')};
 function updateRanks(){
  const sorted=[...racers].sort((a,b)=>b.giftPoints-a.giftPoints);
  $('leaderboard').replaceChildren(...sorted.map((r,i)=>{
@@ -207,7 +208,7 @@ function loop(t){
   if(d.life<=0)d.mesh.visible=false;
  }
  if(phase==='race'){remaining-=dt;for(const r of racers){r.boost=Math.max(0,r.boost-dt*.4)}
- if(remaining<=0){phase='done';for(const r of racers)switchAnimation(r,'idle');const winner=[...racers].sort((a,b)=>b.giftPoints-a.giftPoints)[0];$('banner').style.display='block';$('banner').textContent='🏆 '+winner.name+' KAZANDI! 🎁 '+winner.giftPoints.toLocaleString('tr-TR')+' PUAN';updateRanks();notice('Yarış bitti. Kazanan: '+winner.name+' ('+winner.giftPoints+' hediye puanı)')}}
+ if(remaining<=0){phase='done';for(const r of racers)switchAnimation(r,'idle');const winner=[...racers].sort((a,b)=>b.giftPoints-a.giftPoints)[0];winnerRacer=winner;celebrationStart=t;if(winner.clips&&winner.clips.victory)switchAnimation(winner,'victory');$('banner').style.display='block';$('banner').textContent='🏆 '+winner.name+' KAZANDI! 🎁 '+winner.giftPoints.toLocaleString('tr-TR')+' PUAN';updateRanks();notice('Yarış bitti. Kazanan: '+winner.name+' ('+winner.giftPoints+' hediye puanı)')}}
  $('timer').textContent=Math.max(0,Math.ceil(remaining))+' sn';
  // Keep the full pack visible even if one racer gets a very large gift boost.
  // Keep gift leaders ahead while the finish line remains time-gated.
@@ -223,6 +224,12 @@ function loop(t){
   const visibleGap=(highest-r.giftPoints)<.0001?0:3+normalized*19;
   r.root.position.z=leadZ-visibleGap;
   r.root.position.y=phase==='race'?Math.abs(Math.sin(t*.011+r.color))*.12:0;
+  if(phase==='done'&&r===winnerRacer){
+   const elapsed=(t-celebrationStart)/1000;
+   // Celebrate on the winner's own lane: happy hops, gentle turn and glow.
+   r.root.position.y=Math.abs(Math.sin(elapsed*8))*.85;
+   r.root.rotation.y=Math.sin(elapsed*2.6)*.38;
+  }else if(phase==='done'){r.root.position.y=0;r.root.rotation.y=0;}
  }
  // Smooth front-facing chase camera, framed around all six lanes.
  const targetZ=leadZ+25;
