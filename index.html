@@ -563,8 +563,9 @@ function loop(t){
   // Scores are uncapped: even thousands of gifts keep leaders distinct.
   // A proportional distance gives even huge gift totals a visible advantage.
   const normalized=(highest-r.giftPoints)/spread;
-  const visibleGap=(highest-r.giftPoints)<.0001?0:3+normalized*19;
-  r.root.position.z=leadZ-visibleGap;
+  const visibleGap=phase==='race'||phase==='done'?((highest-r.giftPoints)<.0001?0:3+normalized*19):0;
+  // Gifts before the gun count toward scores, but do not move anyone off the start line.
+  r.root.position.z=phase==='race'||phase==='done'?leadZ-visibleGap:-62;
   r.root.position.y=phase==='race'?Math.abs(Math.sin(t*.011+r.color))*.12:0;
   if(phase==='done'&&r===winnerRacer){
    const elapsed=(t-celebrationStart)/1000;
