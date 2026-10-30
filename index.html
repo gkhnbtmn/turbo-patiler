@@ -566,7 +566,17 @@ function loop(t){
   const visibleGap=phase==='race'||phase==='done'?((highest-r.giftPoints)<.0001?0:3+normalized*19):0;
   // Gifts before the gun count toward scores, but do not move anyone off the start line.
   r.root.position.z=phase==='race'||phase==='done'?leadZ-visibleGap:-62;
-  r.root.position.y=phase==='race'?Math.abs(Math.sin(t*.011+r.color))*.12:0;
+  // Idle warm-up on the start line: gentle bob, sway and staggered footwork.
+  if(phase==='ready'||phase==='countdown'){
+   const wave=t*.0024+r.color*.00001;
+   r.root.position.y=Math.abs(Math.sin(wave*1.8))*.075;
+   r.root.rotation.y=Math.sin(wave)*.085;
+   r.root.rotation.z=Math.sin(wave*1.5)*.035;
+  }else{
+   r.root.position.y=phase==='race'?Math.abs(Math.sin(t*.011+r.color))*.12:0;
+   r.root.rotation.z=0;
+   if(phase==='race')r.root.rotation.y=0;
+  }
   if(phase==='done'&&r===winnerRacer){
    const elapsed=(t-celebrationStart)/1000;
    // Celebrate on the winner's own lane: happy hops, gentle turn and glow.
