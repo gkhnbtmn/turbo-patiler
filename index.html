@@ -350,7 +350,25 @@ $('voiceEnable').onclick=()=>{
  announce('Turbo Canavarlar arenasına hoş geldiniz! Spiker hazır!',true);
 };
 $('voiceMute').onclick=()=>{voiceEnabled=false;voiceSynth?.cancel();$('voiceStatus').textContent='Spiker kapalı'};
-$('start').onclick=()=>{phase='race';remaining=10;winnerRacer=null;celebrationStart=0;$('banner').style.display='none';for(const r of racers){r.score=0;r.giftPoints=0;r.boost=0;r.root.position.z=-62;r.root.rotation.y=0;switchAnimation(r,'run')}updateRanks();voiceFinalFive=false;voiceLastLeader='';announce('Dikkat! Turbo Canavarlar yarışı başlıyor! Herkes hazır mı?',true);notice('🏁 Yarış başladı!')};
+let raceCountdownTimer=null;
+$('start').onclick=()=>{
+ if(phase==='countdown'||phase==='race')return;
+ if(raceCountdownTimer){clearTimeout(raceCountdownTimer);raceCountdownTimer=null}
+ phase='countdown';remaining=10;winnerRacer=null;celebrationStart=0;
+ $('banner').style.display='block';$('banner').textContent='🏁 HAZIRLANIN!';
+ for(const r of racers){r.score=0;r.giftPoints=0;r.boost=0;r.root.position.z=-62;r.root.rotation.y=0;switchAnimation(r,'idle')}
+ updateRanks();voiceFinalFive=false;voiceLastLeader='';
+ announce('Dikkat! Turbo Canavarlar yarışı başlıyor! Herkes hazır mı?',true);
+ notice('🏁 Hazırlanın! Yarış birazdan başlayacak.');
+ raceCountdownTimer=setTimeout(()=>{
+  raceCountdownTimer=null;
+  if(phase!=='countdown')return;
+  phase='race';$('banner').style.display='none';
+  for(const r of racers)switchAnimation(r,'run');
+  announce('Ve yarış başladı! Canavarlar koşuyor!',true);
+  notice('🏁 Yarış başladı!');
+ },3200);
+};
 function updateRanks(){
  const sorted=[...racers].sort((a,b)=>b.giftPoints-a.giftPoints);
  $('leaderboard').replaceChildren(...sorted.map((r,i)=>{
