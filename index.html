@@ -180,6 +180,49 @@ for(const side of [-1,1]){
  }
 }
 
+// Spooky standing skeletons between the hay-bale and pumpkin displays.
+const boneMat=mat(0xe6dfbf),socketMat=mat(0x252329);
+const skeletonSkullGeo=new THREE.SphereGeometry(.28,10,8);
+const skeletonBoneGeo=new THREE.CylinderGeometry(.065,.065,1,7);
+const skeletonRibGeo=new THREE.TorusGeometry(.25,.038,5,10,Math.PI);
+function boneBetween(parent,ax,ay,az,bx,by,bz,r=.065){
+ const a=new THREE.Vector3(ax,ay,az),b=new THREE.Vector3(bx,by,bz);
+ const m=new THREE.Mesh(skeletonBoneGeo,boneMat);
+ m.position.copy(a).add(b).multiplyScalar(.5);
+ m.scale.set(r/.065,a.distanceTo(b),r/.065);
+ m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),b.sub(a).normalize());
+ parent.add(m);
+}
+function skeletonDecor(x,z,scale=1){
+ const g=new THREE.Group();g.position.set(x,.07,z);g.scale.setScalar(scale);
+ // Front of each skeleton looks toward the track.
+ g.rotation.y=x<0?Math.PI/2:-Math.PI/2;scene.add(g);
+ const skull=new THREE.Mesh(skeletonSkullGeo,boneMat);skull.position.y=2.08;g.add(skull);
+ const jaw=new THREE.Mesh(new THREE.BoxGeometry(.35,.12,.29),boneMat);jaw.position.set(0,1.86,.04);g.add(jaw);
+ for(const eyeX of [-.12,.12]){
+  const eye=new THREE.Mesh(new THREE.SphereGeometry(.075,6,4),socketMat);
+  eye.position.set(eyeX,2.1,.248);g.add(eye);
+ }
+ boneBetween(g,0,1.8,0,0,.88,0,.08);
+ boneBetween(g,-.36,1.63,0,.36,1.63,0,.08);
+ boneBetween(g,-.26,.94,0,.26,.94,0,.08);
+ for(const side of [-1,1]){
+  boneBetween(g,side*.33,1.61,0,side*.48,1.18,.08);
+  boneBetween(g,side*.48,1.18,.08,side*.35,.82,.2);
+  boneBetween(g,side*.19,.9,0,side*.21,.47,.03);
+  boneBetween(g,side*.21,.47,.03,side*.26,.08,.13);
+  boneBetween(g,side*.26,.08,.13,side*.26,.07,.37,.08);
+ }
+ for(let i=0;i<4;i++){
+  const rib=new THREE.Mesh(skeletonRibGeo,boneMat);
+  rib.position.set(0,1.52-i*.13,.04);rib.rotation.x=Math.PI/2;
+  rib.scale.set(1-i*.085,1,1);g.add(rib);
+ }
+}
+for(const side of [-1,1]){
+ for(const z of [-62,-45,-28,-12])skeletonDecor(side*18.5,z,.9);
+}
+
 function sign(label,z){
  const c=document.createElement('canvas');c.width=512;c.height=128;
  const ctx=c.getContext('2d');ctx.fillStyle='#14324d';ctx.fillRect(0,0,512,128);
