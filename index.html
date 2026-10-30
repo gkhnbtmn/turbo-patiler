@@ -74,6 +74,21 @@ for(let i=0;i<6;i++){
   ground(2.45,.03,.85,x+(k?1.22:-1.22),.12,-85,(i+k+1)%2?0x19202b:0xffffff);
  }
 }
+// Trackside sponsor-style boards on the grassy strips, never across the lanes.
+function tracksideBoard(x,z){
+ const c=document.createElement('canvas');c.width=1024;c.height=320;
+ const ctx=c.getContext('2d');
+ ctx.fillStyle='#132f49';ctx.fillRect(0,0,1024,320);
+ ctx.strokeStyle='#ffd36b';ctx.lineWidth=19;ctx.strokeRect(14,14,996,292);
+ ctx.fillStyle='#ffe18d';ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.font='900 89px Arial, sans-serif';ctx.fillText('TURBO',512,108);
+ ctx.fillStyle='#ffffff';ctx.font='900 104px Arial, sans-serif';ctx.fillText('CANAVARLAR',512,228);
+ const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;
+ const board=new THREE.Mesh(new THREE.PlaneGeometry(8,2.5),new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide}));
+ board.position.set(x,3.25,z);scene.add(board);
+ for(const dx of [-3.4,3.4])ground(.18,2.4,.2,x+dx,1.2,z,0x3a4d5a);
+}
+for(const z of [-68,-25,9]){tracksideBoard(-19.5,z);tracksideBoard(19.5,z)}
 function sign(label,z){
  const c=document.createElement('canvas');c.width=512;c.height=128;
  const ctx=c.getContext('2d');ctx.fillStyle='#14324d';ctx.fillRect(0,0,512,128);
