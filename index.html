@@ -356,7 +356,7 @@ $('start').onclick=()=>{
  if(raceCountdownTimer){clearTimeout(raceCountdownTimer);raceCountdownTimer=null}
  phase='countdown';remaining=10;winnerRacer=null;celebrationStart=0;
  $('banner').style.display='block';$('banner').textContent='🏁 HAZIRLANIN!';
- for(const r of racers){r.score=0;r.giftPoints=0;r.boost=0;r.root.position.z=-62;r.root.rotation.y=0;switchAnimation(r,'idle')}
+ for(const r of racers){r.score=0;r.giftPoints=0;r.boost=0;r.lastAnnouncedSupporter=null;r.root.position.z=-62;r.root.rotation.y=0;switchAnimation(r,'idle')}
  updateRanks();voiceFinalFive=false;voiceLastLeader='';
  announce('Dikkat! Turbo Canavarlar yarışı başlıyor! Herkes hazır mı?',true);
  notice('🏁 Hazırlanın! Yarış birazdan başlayacak.');
@@ -393,7 +393,13 @@ function addGift(i,v,n,photo){
  r.badgeImage.style.display=url?'block':'none';
  if(url)r.badgeImage.src=url;
  $('support'+i).textContent=leader[0]+' 🎁 '+leader[1];
- updateRanks();announce(n+' isimli izleyiciden '+r.name+' takımına '+v+' puanlık hediye!');if(phase==='race'){const leader=[...racers].sort((a,b)=>b.giftPoints-a.giftPoints)[0];if(leader.giftPoints>0&&leader.name!==voiceLastLeader){voiceLastLeader=leader.name;announce(leader.name+' liderliği ele geçirdi!',true)}}notice(n+' → '+r.name+' +'+v+' | Toplam: '+r.giftPoints);
+ updateRanks();
+// Announce only when the top supporter shown above a monster changes.
+if(leader[0]!==r.lastAnnouncedSupporter){
+ r.lastAnnouncedSupporter=leader[0];
+ announce(r.name+' takımının en büyük destekçisi '+leader[0]+'!',true);
+}
+notice(n+' → '+r.name+' +'+v+' | Toplam: '+r.giftPoints);
 }
 $('send').onclick=()=>{
  const i=+$('team').value,v=+$('gift').value,n=$('viewer').value.trim()||'Misafir';
@@ -407,7 +413,7 @@ function liveComment(name,comment){
  name=String(name||'').trim().slice(0,40);
  const n=Number(String(comment).trim());
  if(!name||!Number.isInteger(n)||n<1||n>6)return false;
- liveTeams.set(name.toLocaleLowerCase('tr-TR'),n-1);announce(name+', '+racers[n-1].name+' takımına katıldı!');
+ liveTeams.set(name.toLocaleLowerCase('tr-TR'),n-1);
  $('liveStatus').textContent='💬 '+name+' → '+racers[n-1].name+' takımına katıldı! · '+liveTeams.size+' izleyici';
  return true;
 }
