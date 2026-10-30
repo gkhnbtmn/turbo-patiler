@@ -405,7 +405,29 @@ function loop(t){
   if(d.life<=0)d.mesh.visible=false;
  }
  if(phase==='race'){remaining-=dt;for(const r of racers){r.boost=Math.max(0,r.boost-dt*.4)}
- if(remaining<=0){phase='done';for(const r of racers)switchAnimation(r,'idle');const winner=[...racers].sort((a,b)=>b.giftPoints-a.giftPoints)[0];winnerRacer=winner;celebrationStart=t;burstConfetti(winner);if(winner.clips&&winner.clips.victory)switchAnimation(winner,'victory');$('banner').style.display='block';$('banner').textContent='🏆 '+winner.name+' KAZANDI! 🎁 '+winner.giftPoints.toLocaleString('tr-TR')+' PUAN';updateRanks();notice('Yarış bitti. Kazanan: '+winner.name+' ('+winner.giftPoints+' hediye puanı)')}}
+ if(remaining<=0){
+  phase='done';
+  for(const r of racers)switchAnimation(r,'idle');
+  const ranked=[...racers].sort((a,b)=>b.giftPoints-a.giftPoints);
+  const topScore=ranked[0]?.giftPoints??0;
+  const tied=ranked.filter(r=>r.giftPoints===topScore);
+  winnerRacer=null;
+  $('banner').style.display='block';
+  if(topScore<=0){
+   $('banner').textContent='🤝 YARIŞ BERABERE! HİÇ HEDİYE PUANI YOK';
+   notice('Yarış berabere bitti. Hiçbir yarışmacı puan alamadı.');
+  }else if(tied.length>1){
+   $('banner').textContent='🤝 BERABERE! '+tied.map(r=>r.name).join(' & ')+' · '+topScore.toLocaleString('tr-TR')+' PUAN';
+   notice('Yarış berabere bitti. En yüksek puanı '+tied.length+' yarışmacı paylaştı.');
+  }else{
+   const winner=ranked[0];
+   winnerRacer=winner;celebrationStart=t;burstConfetti(winner);
+   if(winner.clips&&winner.clips.victory)switchAnimation(winner,'victory');
+   $('banner').textContent='🏆 '+winner.name+' KAZANDI! 🎁 '+winner.giftPoints.toLocaleString('tr-TR')+' PUAN';
+   notice('Yarış bitti. Kazanan: '+winner.name+' ('+winner.giftPoints+' hediye puanı)');
+  }
+  updateRanks();
+ }}
  $('timer').textContent=Math.max(0,Math.ceil(remaining))+' sn';
  // Keep the full pack visible even if one racer gets a very large gift boost.
  // Keep gift leaders ahead while the finish line remains time-gated.
