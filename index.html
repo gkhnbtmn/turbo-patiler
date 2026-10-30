@@ -124,6 +124,24 @@ function emitDust(r){
  d.mesh.scale.setScalar(.7+Math.random()*.65);
  d.vx=(Math.random()-.5)*1.6;d.vz=-1.2-Math.random()*1.4;d.vy=.3+Math.random()*.4;
 }
+// Reusable 3D confetti burst around the winning monster.
+const confettiColors=[0xffd84a,0xff5277,0x5be7ff,0x9bff75,0xcf8bff,0xffffff];
+const confetti=[];
+const confettiGeo=new THREE.PlaneGeometry(.18,.32);
+for(let i=0;i<160;i++){
+ const mat=new THREE.MeshBasicMaterial({color:confettiColors[i%confettiColors.length],side:THREE.DoubleSide,transparent:true,depthWrite:false});
+ const mesh=new THREE.Mesh(confettiGeo,mat);mesh.visible=false;scene.add(mesh);
+ confetti.push({mesh,life:0,vx:0,vy:0,vz:0,spin:0});
+}
+function burstConfetti(r){
+ for(const c of confetti){
+  c.life=2.6+Math.random()*1.8;c.mesh.visible=true;c.mesh.material.opacity=1;
+  c.mesh.position.set(r.laneX+(Math.random()-.5)*3,3.4+Math.random()*2,r.root.position.z+(Math.random()-.5)*2);
+  c.vx=(Math.random()-.5)*7;c.vy=2+Math.random()*6;c.vz=(Math.random()-.5)*6;
+  c.spin=(Math.random()-.5)*13;
+  c.mesh.rotation.set(Math.random()*6,Math.random()*6,Math.random()*6);
+ }
+}
 const loader=new GLTFLoader();let loaded=0;
 const models=['NightWitch.glb','TombMummy.glb','VampireCountess.glb','WerewolfCaptain.glb','StitchedBrute.glb','SheetGhost.glb'];
 models.forEach((file,i)=>loader.load('gobkit-human011-pack/'+file,gltf=>{
@@ -200,6 +218,13 @@ function loop(t){
   dustAccumulator+=dt;
   if(dustAccumulator>.09){dustAccumulator=0;for(const r of racers)emitDust(r)}
  }
+ for(const c of confetti)if(c.life>0){
+  c.life-=dt;c.vy-=7.5*dt;
+  c.mesh.position.x+=c.vx*dt;c.mesh.position.y+=c.vy*dt;c.mesh.position.z+=c.vz*dt;
+  c.mesh.rotation.x+=c.spin*dt;c.mesh.rotation.y+=c.spin*.7*dt;
+  c.mesh.material.opacity=Math.min(1,Math.max(0,c.life));
+  if(c.life<=0||c.mesh.position.y<.2){c.life=0;c.mesh.visible=false}
+ }
  for(const d of dust)if(d.life>0){
   d.life-=dt;
   d.mesh.position.x+=d.vx*dt;d.mesh.position.z+=d.vz*dt;d.mesh.position.y+=d.vy*dt;
@@ -208,7 +233,7 @@ function loop(t){
   if(d.life<=0)d.mesh.visible=false;
  }
  if(phase==='race'){remaining-=dt;for(const r of racers){r.boost=Math.max(0,r.boost-dt*.4)}
- if(remaining<=0){phase='done';for(const r of racers)switchAnimation(r,'idle');const winner=[...racers].sort((a,b)=>b.giftPoints-a.giftPoints)[0];winnerRacer=winner;celebrationStart=t;if(winner.clips&&winner.clips.victory)switchAnimation(winner,'victory');$('banner').style.display='block';$('banner').textContent='🏆 '+winner.name+' KAZANDI! 🎁 '+winner.giftPoints.toLocaleString('tr-TR')+' PUAN';updateRanks();notice('Yarış bitti. Kazanan: '+winner.name+' ('+winner.giftPoints+' hediye puanı)')}}
+ if(remaining<=0){phase='done';for(const r of racers)switchAnimation(r,'idle');const winner=[...racers].sort((a,b)=>b.giftPoints-a.giftPoints)[0];winnerRacer=winner;celebrationStart=t;burstConfetti(winner);if(winner.clips&&winner.clips.victory)switchAnimation(winner,'victory');$('banner').style.display='block';$('banner').textContent='🏆 '+winner.name+' KAZANDI! 🎁 '+winner.giftPoints.toLocaleString('tr-TR')+' PUAN';updateRanks();notice('Yarış bitti. Kazanan: '+winner.name+' ('+winner.giftPoints+' hediye puanı)')}}
  $('timer').textContent=Math.max(0,Math.ceil(remaining))+' sn';
  // Keep the full pack visible even if one racer gets a very large gift boost.
  // Keep gift leaders ahead while the finish line remains time-gated.
