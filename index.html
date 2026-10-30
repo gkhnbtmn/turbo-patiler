@@ -93,12 +93,19 @@ function tracksideBoard(){
  for(const z of [-54.3,-43.7])ground(.18,1.1,.18,-16,0.52,z,0x46545e);
 }
 tracksideBoard();
-// Side grandstands with colorful low-poly spectators, outside the race lanes.
+// Lightweight dressed low-poly spectators with independent cheering rigs.
 const spectators=[];
 const crowdColors=[0xff6b6b,0x5dc9f5,0xffd166,0xa98bfa,0x81d17d,0xf49ac2,0xffffff];
 const skinColors=[0xf0c6a2,0xb97b56,0x805038,0xe8ad83];
-const headGeo=new THREE.SphereGeometry(.27,8,6);
-const bodyGeo=new THREE.BoxGeometry(.54,.65,.34);
+const pantsColors=[0x253448,0x43506c,0x36323f,0x597089];
+const hairColors=[0x211b1c,0x52372a,0x9a6438,0xe1bd70];
+const crowdHeadGeo=new THREE.SphereGeometry(.23,7,6);
+const crowdTorsoGeo=new THREE.BoxGeometry(.54,.65,.33);
+const crowdLimbGeo=new THREE.BoxGeometry(.16,.55,.18);
+const crowdShoeGeo=new THREE.BoxGeometry(.22,.14,.31);
+function crowdPart(parent,geo,color,x,y,z){
+ const m=new THREE.Mesh(geo,mat(color));m.position.set(x,y,z);parent.add(m);return m;
+}
 function addGrandstand(side){
  const baseX=side*24;
  for(let row=0;row<4;row++){
@@ -107,14 +114,32 @@ function addGrandstand(side){
   ground(3.2,.85,78,x,y-.52,-41,0x34495c);
   for(let col=0;col<24;col++){
    const z=-77+col*3.1;
-   const shirt=new THREE.Mesh(bodyGeo,mat(crowdColors[(row*7+col*3+(side>0?2:0))%crowdColors.length]));
-   shirt.position.set(x,y+.78,z);scene.add(shirt);
-   const head=new THREE.Mesh(headGeo,mat(skinColors[(row+col)%skinColors.length]));
-   head.position.set(x,y+1.36,z);scene.add(head);
-   spectators.push({body:shirt,head,phase:col*.9+row*1.7});
+   const root=new THREE.Group();root.position.set(x,y,z);
+   // All characters look toward the racing lanes.
+   root.rotation.y=side<0?Math.PI/2:-Math.PI/2;
+   scene.add(root);
+   const shirt=crowdColors[(row*7+col*3+(side>0?2:0))%crowdColors.length];
+   const skin=skinColors[(row+col)%skinColors.length];
+   const pants=pantsColors[(row*3+col)%pantsColors.length];
+   const hair=hairColors[(row+col*2)%hairColors.length];
+   crowdPart(root,crowdTorsoGeo,shirt,0,.94,0);
+   crowdPart(root,crowdHeadGeo,skin,0,1.55,0);
+   const hairCap=crowdPart(root,new THREE.SphereGeometry(.245,7,4,0,Math.PI*2,0,Math.PI*.48),hair,0,1.61,0);
+   hairCap.scale.y=.85;
+   for(const lr of [-1,1]){
+    crowdPart(root,crowdLimbGeo,pants,lr*.16,.37,0);
+    crowdPart(root,crowdShoeGeo,0x1c2630,lr*.16,.08,.08);
+   }
+   const leftArm=new THREE.Group(),rightArm=new THREE.Group();
+   leftArm.position.set(-.35,1.22,0);rightArm.position.set(.35,1.22,0);
+   root.add(leftArm,rightArm);
+   crowdPart(leftArm,crowdLimbGeo,shirt,0,-.22,0);
+   crowdPart(rightArm,crowdLimbGeo,shirt,0,-.22,0);
+   crowdPart(leftArm,new THREE.SphereGeometry(.095,6,4),skin,0,-.51,0);
+   crowdPart(rightArm,new THREE.SphereGeometry(.095,6,4),skin,0,-.51,0);
+   spectators.push({root,leftArm,rightArm,baseY:y,phase:col*.9+row*1.7,mode:(col+row*3)%4});
   }
  }
- // Safety railing between the audience and track.
  ground(.12,1.3,78,side*20.4,1.15,-41,0xe9d69a);
  for(let z=-79;z<0;z+=5)ground(.15,1.8,.15,side*20.4,.8,z,0x7a8995);
 }
@@ -270,11 +295,28 @@ function loop(t){
   c.mesh.material.opacity=Math.min(1,Math.max(0,c.life));
   if(c.life<=0||c.mesh.position.y<.2){c.life=0;c.mesh.visible=false}
  }
- // Small crowd cheering motions, with no extra animation assets.
+ // Animated cheering: clapping, waving, jumping and swaying.
  for(const person of spectators){
-  const cheer=phase==='race'?Math.max(0,Math.sin(t*.004+person.phase))*.15:0;
-  person.body.position.y+= (person.body.userData.baseY??=person.body.position.y)+cheer-person.body.position.y;
-  person.head.position.y=(person.head.userData.baseY??=person.head.position.y)+cheer;
+  const active=phase==='race'||phase==='done';
+  const beat=t*.006+person.phase;
+  const wave=Math.sin(beat);
+  person.root.position.y=person.baseY+(active&&person.mode===2?Math.max(0,wave)*.22:0);
+  person.root.rotation.z=active&&person.mode===3?wave*.12:0;
+  if(!active){person.leftArm.rotation.z=-.18;person.rightArm.rotation.z=.18;continue}
+  if(person.mode===0){ // clapping
+   const clap=Math.sin(beat*2)*.42;
+   person.leftArm.rotation.z=-1.15+clap;
+   person.rightArm.rotation.z=1.15-clap;
+  }else if(person.mode===1){ // both arms waving overhead
+   person.leftArm.rotation.z=-2.6+wave*.35;
+   person.rightArm.rotation.z=2.6-wave*.35;
+  }else if(person.mode===2){ // jumping and pumping fists
+   person.leftArm.rotation.z=-2.3+wave*.3;
+   person.rightArm.rotation.z=2.3-wave*.3;
+  }else{ // alternating cheer
+   person.leftArm.rotation.z=-1.8+wave*.6;
+   person.rightArm.rotation.z=1.8+Math.sin(beat+Math.PI)*.6;
+  }
  }
  for(const d of dust)if(d.life>0){
   d.life-=dt;
