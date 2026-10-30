@@ -385,36 +385,16 @@ $('voiceEnable').onclick=()=>{
 $('voiceMute').onclick=()=>{voiceEnabled=false;voiceSynth?.cancel();stopVictoryCheer();$('voiceStatus').textContent='Spiker kapalı'};
 // Synthetic stadium crowd cheering, played only for a unique winner.
 let cheerAudioContext=null,cheerNoiseSource=null,cheerEndTimer=null;
+// CC0 sports crowd chanting recording; replaces synthetic white-noise roar.
+const stadiumCheer=new Audio('https://sfxmint.com/dl/crowd-chant-05.mp3');
+stadiumCheer.preload='auto';stadiumCheer.volume=.8;
 function stopVictoryCheer(){
- if(cheerEndTimer){clearTimeout(cheerEndTimer);cheerEndTimer=null}
- if(cheerNoiseSource){try{cheerNoiseSource.stop()}catch(e){}cheerNoiseSource=null}
+ stadiumCheer.pause();stadiumCheer.currentTime=0;
 }
 function playVictoryCheer(){
  if(!voiceEnabled)return;
- try{
-  const AC=window.AudioContext||window.webkitAudioContext;
-  if(!AC)return;
-  cheerAudioContext=cheerAudioContext||new AC();
-  if(cheerAudioContext.state==='suspended')cheerAudioContext.resume();
-  stopVictoryCheer();
-  const ctx=cheerAudioContext,duration=5,samples=Math.floor(ctx.sampleRate*duration);
-  const buffer=ctx.createBuffer(1,samples,ctx.sampleRate),data=buffer.getChannelData(0);
-  // Stadium-like roar: slowly modulated filtered crowd noise.
-  for(let i=0;i<samples;i++){
-   const x=i/ctx.sampleRate;
-   const swell=.58+.24*Math.sin(x*9)+.13*Math.sin(x*23);
-   data[i]=(Math.random()*2-1)*swell;
-  }
-  const src=ctx.createBufferSource();src.buffer=buffer;
-  const low=ctx.createBiquadFilter();low.type='bandpass';low.frequency.value=900;low.Q.value=.48;
-  const gain=ctx.createGain();gain.gain.setValueAtTime(.001,ctx.currentTime);
-  gain.gain.linearRampToValueAtTime(.18,ctx.currentTime+.35);
-  gain.gain.setValueAtTime(.18,ctx.currentTime+3.4);
-  gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+5);
-  src.connect(low);low.connect(gain);gain.connect(ctx.destination);
-  src.start();src.stop(ctx.currentTime+5.05);cheerNoiseSource=src;
-  src.onended=()=>{if(cheerNoiseSource===src)cheerNoiseSource=null};
- }catch(e){console.warn('Cheer audio unavailable',e)}
+ stopVictoryCheer();
+ stadiumCheer.play().catch(e=>console.warn('Stadium cheer could not play',e));
 }
 let raceCountdownTimer=null;
 $('start').onclick=()=>{
