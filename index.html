@@ -527,7 +527,7 @@ function loop(t){
   d.mesh.material.opacity=Math.max(0,d.life/d.maxLife)*.52;
   if(d.life<=0)d.mesh.visible=false;
  }
- if(phase==='race'){remaining-=dt;if(remaining<=5&&remaining>0&&!voiceFinalFive){voiceFinalFive=true;announce('Son beş saniye! Yarış kızışıyor!',true)}for(const r of racers){r.boost=Math.max(0,r.boost-dt*.4)}
+ if(phase==='race'){remaining-=dt;if(remaining<=5&&remaining>0&&!voiceFinalFive){voiceFinalFive=true;announce('Son beş saniye!',true)}for(const r of racers){r.boost=Math.max(0,r.boost-dt*.4)}
  if(remaining<=0){
   phase='done';
   for(const r of racers)switchAnimation(r,'idle');
