@@ -21,7 +21,7 @@ for(let i=0;i<6;i++){
  if(i<5)ground(.09,.16,135,x+2.5,.12,-32,0xf8e4b8);
  const root=new THREE.Group();const fallback=character(i);
  root.add(fallback);root.position.set(x,0,-62);scene.add(root);
- racers.push({root,name:names[i],score:0,boost:0,support:{},supportPhotos:{},color:colors[i],laneX:x});
+ racers.push({root,name:names[i],score:0,giftPoints:0,boost:0,support:{},supportPhotos:{},color:colors[i],laneX:x});
  const badge=document.createElement('div');badge.className='leaderBadge';badge.id='leaderBadge'+i;
  const img=document.createElement('img');img.alt='Destekçi profil fotoğrafı';
  const txt=document.createElement('span');badge.append(img,txt);
@@ -125,11 +125,11 @@ models.forEach((file,i)=>loader.load('gobkit-human011-pack/'+file,gltf=>{
 window.__turboDiagnostics={scene,camera,renderer,racers,THREE};
 function resize(){const el=$('stage');renderer.setSize(el.clientWidth,el.clientHeight,false);camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix()}
 window.addEventListener('resize',resize);resize();
-$('start').onclick=()=>{phase='race';remaining=60;$('banner').style.display='none';for(const r of racers){r.score=0;r.boost=0;r.root.position.z=-62;switchAnimation(r,'run')}notice('🏁 Yarış başladı!')};
+$('start').onclick=()=>{phase='race';remaining=60;$('banner').style.display='none';for(const r of racers){r.score=0;r.giftPoints=0;r.boost=0;r.root.position.z=-62;switchAnimation(r,'run')}notice('🏁 Yarış başladı!')};
 function addGift(i,v,n,photo){
  const r=racers[i];if(!r||!Number.isFinite(v)||v<=0)return;
  n=String(n||'Misafir').slice(0,40);
- r.boost+=v;r.score+=v*.16;
+ r.boost+=v;r.giftPoints+=v;r.score=r.giftPoints;
  r.support[n]=(r.support[n]||0)+v;
  if(photo && /^https:\/\//i.test(photo))r.supportPhotos[n]=photo;
  const leader=Object.entries(r.support).sort((a,b)=>b[1]-a[1])[0];
@@ -163,21 +163,21 @@ function loop(t){
   d.mesh.material.opacity=Math.max(0,d.life/d.maxLife)*.52;
   if(d.life<=0)d.mesh.visible=false;
  }
- if(phase==='race'){remaining-=dt;for(const r of racers){r.score+=dt*(1.1+r.boost*.09);r.boost=Math.max(0,r.boost-dt*.4)}
- if(remaining<=0){phase='done';for(const r of racers)switchAnimation(r,'idle');const winner=[...racers].sort((a,b)=>b.score-a.score)[0];$('banner').style.display='block';$('banner').textContent='🏆 '+winner.name+' KAZANDI!';notice('Yarış bitti. Yeni yarış başlatabilirsin.')}}
+ if(phase==='race'){remaining-=dt;for(const r of racers){r.boost=Math.max(0,r.boost-dt*.4)}
+ if(remaining<=0){phase='done';for(const r of racers)switchAnimation(r,'idle');const winner=[...racers].sort((a,b)=>b.giftPoints-a.giftPoints)[0];$('banner').style.display='block';$('banner').textContent='🏆 '+winner.name+' KAZANDI!';notice('Yarış bitti. Yeni yarış başlatabilirsin.')}}
  $('timer').textContent=Math.max(0,Math.ceil(remaining))+' sn';
  // Keep the full pack visible even if one racer gets a very large gift boost.
  // Keep gift leaders ahead while the finish line remains time-gated.
  const raceFraction=phase==='ready'?0:Math.min(1,Math.max(0,(60-remaining)/60));
  const leadZ=-62+73*raceFraction;
- const scores=racers.map(r=>r.score);
+ const scores=racers.map(r=>r.giftPoints);
  const highest=Math.max(...scores),lowest=Math.min(...scores);
  const spread=Math.max(1,highest-lowest);
  for(const r of racers){
   // Scores are uncapped: even thousands of gifts keep leaders distinct.
   // A proportional distance gives even huge gift totals a visible advantage.
-  const normalized=(highest-r.score)/spread;
-  const visibleGap=(highest-r.score)<.0001?0:3+normalized*19;
+  const normalized=(highest-r.giftPoints)/spread;
+  const visibleGap=(highest-r.giftPoints)<.0001?0:3+normalized*19;
   r.root.position.z=leadZ-visibleGap;
   r.root.position.y=phase==='race'?Math.abs(Math.sin(t*.011+r.color))*.12:0;
  }
@@ -213,7 +213,7 @@ function loop(t){
   placed.push({x,y,w,h});
  }
  renderer.render(scene,camera);
- if(Math.floor(t/500)!==Math.floor((t-dt*1000)/500))$('ranks').innerHTML=[...racers].sort((a,b)=>b.score-a.score).map((r,i)=>'<span class="rank">'+(i+1)+'. '+r.name+' · '+r.score.toFixed(1)+'</span>').join('');
+ if(Math.floor(t/500)!==Math.floor((t-dt*1000)/500))$('ranks').innerHTML=[...racers].sort((a,b)=>b.giftPoints-a.giftPoints).map((r,i)=>'<span class="rank">'+(i+1)+'. '+r.name+' · '+r.score.toFixed(1)+'</span>').join('');
 }
 requestAnimationFrame(loop);notice('Önden kamera hazır — 6 model yükleniyor');
 }function launch(){try{main()}catch(e){notice('3D hata: '+e.message);console.error(e)}}if(window.THREE&&window.GLTFLoader)launch();else window.addEventListener('turbo-three-ready',launch,{once:true})})();</script></body></html>
