@@ -12,7 +12,7 @@
 #rules li{margin:5px 0}
 .infoNote{font-size:12px;color:#9fc0d5;margin:10px 0 0}
 @media(max-width:750px){#infoPanel{grid-template-columns:1fr;padding:10px}#arena{min-height:430px;height:65vh}.infoCard{padding:12px}}
-</style></head><body><header><h1>🏁 TURBO CANAVARLAR <small>3D · TEST V8</small></h1><div id="timer">10 sn</div></header><div id="arena"><div id="stands">🏟️ TURBO CANAVARLAR ARENASI · CANLI YARIŞ</div><div id="stage"><div id="fullMoon" aria-hidden="true"></div></div><div id="overlay"></div><div id="supporters3d"></div><div id="banner"></div></div><div id="controls"><button id="start">🏁 YARIŞI BAŞLAT</button><input id="viewer" placeholder="İzleyici adı"><input id="avatarUrl" placeholder="Profil fotoğrafı URL (isteğe bağlı)" style="width:220px"><select id="team"></select><select id="gift"><option value="1">🌹 Gül +1</option><option value="5">💖 Kalp +5</option><option value="10">🎈 Balon +10</option><option value="50">🎁 Hediye Kutusu +50</option><option value="100">🎉 Konfeti +100</option><option value="500">🚀 Roket +500</option><option value="1000">👑 Taç +1000</option></select><button id="send">🎁 TEST HEDİYESİ</button></div><div id="message">3D sahne hazırlanıyor…</div>
+</style></head><body><header><h1>🏁 TURBO CANAVARLAR <small>3D · TEST V8</small></h1><div id="timer">10 sn</div></header><div id="arena"><div id="stands">🏟️ TURBO CANAVARLAR ARENASI · CANLI YARIŞ</div><div id="stage"><div id="fullMoon" aria-hidden="true"></div></div><div id="overlay"></div><div id="supporters3d"></div><div id="banner"></div></div><div id="controls"><button id="start">🏁 YARIŞI BAŞLAT</button><input id="viewer" placeholder="İzleyici adı"><input id="avatarUrl" placeholder="Profil fotoğrafı URL (isteğe bağlı)" style="width:220px"><select id="team"></select><select id="gift"><option value="1">🌹 Gül +1</option><option value="5">💖 Kalp +5</option><option value="10">🎈 Balon +10</option><option value="50">🎁 Hediye Kutusu +50</option><option value="100">🎉 Konfeti +100</option><option value="500">🚀 Roket +500</option><option value="1000">👑 Taç +1000</option></select><button id="send">🎁 TEST HEDİYESİ</button></div><div id="liveTest" style="background:#18364e;border:2px solid #e3ba66;border-radius:12px;padding:13px;margin:12px 0;color:#fff"><strong>📺 TikTok LIVE Katılım Simülatörü (TEST)</strong><p style="margin:6px 0">İzleyici yorumuna 1–6 yazarak canavar seçer. Sonraki hediyeler seçtiği canavara puan ekler. Gerçek TikTok bağlantısı henüz yoktur.</p><input id="liveUser" placeholder="TikTok kullanıcı adı (örn. ahmet)" style="max-width:190px"><select id="liveChoice"><option value="1">1 · Gece Cadısı</option><option value="2">2 · Mumya</option><option value="3">3 · Vampir</option><option value="4">4 · Kurt Adam</option><option value="5">5 · Dev</option><option value="6">6 · Hayalet</option></select><button id="joinTest">💬 YORUM GÖNDER / TAKIM SEÇ</button><select id="liveGift"><option value="1">🌹 Gül +1</option><option value="5">💖 Kalp +5</option><option value="10">🎈 Balon +10</option><option value="50">🎁 Kutu +50</option><option value="100">🎉 Konfeti +100</option><option value="500">🚀 Roket +500</option><option value="1000">👑 Taç +1000</option></select><button id="liveSend">🎁 HEDİYE GÖNDER (TEST)</button><p id="liveStatus" style="margin:8px 0 0;color:#ffdf91">Henüz katılan yok.</p></div><div id="message">3D sahne hazırlanıyor…</div>
 <section id="infoPanel" aria-label="Yarış bilgileri">
  <div class="infoCard"><h2>🏆 Canlı Lider Sıralaması</h2><div id="leaderboard" aria-live="polite"></div><p class="infoNote">Sıralama toplam hediye puanına göre anlık güncellenir.</p></div>
  <div class="infoCard"><h2>📜 Nasıl Oynanır?</h2><ol id="rules">
@@ -357,6 +357,32 @@ $('send').onclick=()=>{
 };
 // For a future TikTok LIVE bridge: window.turboGift({team:0,points:5,name:'...',photo:'https://...'})
 window.turboGift=({team,points,name,photo})=>addGift(Number(team),Number(points),name,photo);
+// Simulated TikTok comments and gifts. Can later be called by a LIVE bridge.
+const liveTeams=new Map();
+function liveComment(name,comment){
+ name=String(name||'').trim().slice(0,40);
+ const n=Number(String(comment).trim());
+ if(!name||!Number.isInteger(n)||n<1||n>6)return false;
+ liveTeams.set(name.toLocaleLowerCase('tr-TR'),n-1);
+ $('liveStatus').textContent='💬 '+name+' → '+racers[n-1].name+' takımına katıldı! · '+liveTeams.size+' izleyici';
+ return true;
+}
+function liveGift(name,points,photo){
+ name=String(name||'').trim().slice(0,40);
+ const team=liveTeams.get(name.toLocaleLowerCase('tr-TR'));
+ if(team===undefined){$('liveStatus').textContent='⚠️ '+(name||'İzleyici')+' önce yorumla takım seçmeli (1–6).';return false}
+ const amount=Number(points);
+ if(!Number.isFinite(amount)||amount<=0)return false;
+ if(phase==='done'){$('liveStatus').textContent='⚠️ Yarış bitti. Yeni yarış başlatın.';return false}
+ addGift(team,amount,name,photo);
+ $('liveStatus').textContent='🎁 '+name+' → '+racers[team].name+' +'+amount+' puan';
+ return true;
+}
+window.turboLiveComment=liveComment;
+window.turboLiveGift=liveGift;
+$('joinTest').onclick=()=>{if(!liveComment($('liveUser').value,$('liveChoice').value))$('liveStatus').textContent='⚠️ Önce kullanıcı adı yazın.'};
+$('liveSend').onclick=()=>liveGift($('liveUser').value,$('liveGift').value);
+
 function loop(t){
  requestAnimationFrame(loop);const dt=Math.min((t-last)/1000,.05);last=t;
  for(const r of racers)if(r.mixer){
